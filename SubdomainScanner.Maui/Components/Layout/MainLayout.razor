@@ -1,0 +1,107 @@
+@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudLayout>
+    <MudAppBar Elevation="1" Dense="true">
+        <MudIcon Icon="@Icons.Material.Filled.Search" Class="mr-2" />
+        <MudText Typo="Typo.h6">Subdomain Scanner</MudText>
+        <MudSpacer />
+        <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
+    </MudAppBar>
+    <MudMainContent Class="pa-4" Style="margin-top: 48px; min-height: calc(100vh - 48px);">
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _isDarkMode = true;
+    private MudTheme? _theme = null;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        _theme = new()
+        {
+            PaletteLight = _lightPalette,
+            PaletteDark = _darkPalette,
+            LayoutProperties = new LayoutProperties()
+            {
+                DefaultBorderRadius = "6px" // Nuxt UI border radius
+            }
+        };
+    }
+
+    private void DarkModeToggle()
+    {
+        _isDarkMode = !_isDarkMode;
+    }
+
+    private readonly PaletteLight _lightPalette = new()
+    {
+        // Nuxt UI Primary - Green
+        Primary = "#10b981",        // Green-500
+        Secondary = "#6366f1",      // Indigo-500
+        Tertiary = "#8b5cf6",       // Violet-500
+        Success = "#22c55e",        // Green-500
+        Info = "#3b82f6",           // Blue-500
+        Warning = "#f59e0b",        // Amber-500
+        Error = "#ef4444",          // Red-500
+        // Nuxt UI Grays - Slate/Cool
+        Black = "#0f172a",          // Slate-900
+        AppbarText = "#334155",     // Slate-700
+        AppbarBackground = "rgba(255,255,255,0.9)",
+        DrawerBackground = "#ffffff",
+        Background = "#ffffff",
+        BackgroundGray = "#f8fafc",  // Slate-50
+        Surface = "#ffffff",
+        TextPrimary = "#0f172a",    // Slate-900
+        TextSecondary = "#64748b",  // Slate-500
+        GrayLight = "#e2e8f0",      // Slate-200
+        GrayLighter = "#f1f5f9",    // Slate-100
+    };
+
+    private readonly PaletteDark _darkPalette = new()
+    {
+        // Nuxt UI Primary - Green (plus lumineux en dark)
+        Primary = "#22c55e",        // Green-500
+        Secondary = "#818cf8",      // Indigo-400
+        Tertiary = "#a78bfa",       // Violet-400
+        Success = "#34d399",        // Emerald-400
+        Info = "#60a5fa",           // Blue-400
+        Warning = "#fbbf24",        // Amber-400
+        Error = "#f87171",          // Red-400
+        // Nuxt UI Dark - Slate background
+        Dark = "#020617",           // Slate-950
+        Black = "#020617",          // Slate-950
+        Surface = "#0f172a",        // Slate-900
+        Background = "#020617",     // Slate-950
+        BackgroundGray = "#0c1222", // Entre 950 et 900
+        AppbarText = "#f1f5f9",     // Slate-100
+        AppbarBackground = "#0f172a", // Slate-900
+        DrawerBackground = "#0f172a", // Slate-900
+        ActionDefault = "#cbd5e1",   // Slate-300
+        ActionDisabled = "#475569",  // Slate-600
+        ActionDisabledBackground = "#1e293b", // Slate-800
+        TextPrimary = "#f1f5f9",     // Slate-100
+        TextSecondary = "#94a3b8",   // Slate-400
+        TextDisabled = "#64748b",    // Slate-500
+        DrawerIcon = "#94a3b8",      // Slate-400
+        DrawerText = "#f1f5f9",      // Slate-100
+        GrayLight = "#1e293b",       // Slate-800
+        GrayLighter = "#0f172a",     // Slate-900
+        LinesDefault = "#1e293b",    // Slate-800
+        TableLines = "#1e293b",      // Slate-800
+        Divider = "#1e293b",         // Slate-800
+        OverlayLight = "#02061780",  // Slate-950 avec transparence
+    };
+
+    public string DarkLightModeButtonIcon => _isDarkMode switch
+    {
+        true => Icons.Material.Rounded.AutoMode,
+        false => Icons.Material.Outlined.DarkMode,
+    };
+}
