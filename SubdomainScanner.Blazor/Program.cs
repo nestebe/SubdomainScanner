@@ -1,10 +1,17 @@
 using MudBlazor.Services;
 using SubdomainScanner.Blazor.Components;
+using SubdomainScanner.Blazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add MudBlazor services
 builder.Services.AddMudServices();
+
+// Add HttpClient
+builder.Services.AddHttpClient();
+
+// Add Scanner Service
+builder.Services.AddScoped<ScannerService>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

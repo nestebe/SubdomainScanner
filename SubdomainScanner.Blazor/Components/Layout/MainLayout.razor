@@ -7,16 +7,19 @@
 <MudLayout>
     <MudAppBar Elevation="1">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+        <MudIcon Icon="@Icons.Material.Filled.Search" Class="ml-3 mr-2" />
+        <MudText Typo="Typo.h5">Subdomain Scanner</MudText>
         <MudSpacer />
         <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
     </MudAppBar>
     <MudDrawer id="nav-drawer" @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />
     </MudDrawer>
-    <MudMainContent Class="pt-16 pa-4">
-        @Body
+    <MudMainContent Class="pt-16 pa-4" Style="min-height: calc(100vh - 64px); display: flex; flex-direction: column;">
+        <div style="flex: 1;">
+            @Body
+        </div>
+        <Footer />
     </MudMainContent>
 </MudLayout>
 
@@ -41,6 +44,9 @@
             PaletteLight = _lightPalette,
             PaletteDark = _darkPalette,
             LayoutProperties = new LayoutProperties()
+            {
+                DefaultBorderRadius = "4px"
+            }
         };
     }
 
@@ -56,41 +62,57 @@
 
     private readonly PaletteLight _lightPalette = new()
     {
-        Black = "#110e2d",
-        AppbarText = "#424242",
-        AppbarBackground = "rgba(255,255,255,0.8)",
-        DrawerBackground = "#ffffff",
-        GrayLight = "#e8e8e8",
-        GrayLighter = "#f9f9f9",
+        Primary = "#ff6633",        // Burp Orange
+        Secondary = "#3b82f6",      // Blue
+        Tertiary = "#8b5cf6",       // Purple
+        Success = "#22c55e",        // Green
+        Info = "#3b82f6",           // Blue
+        Warning = "#f59e0b",        // Amber
+        Error = "#ef4444",          // Red
+        Black = "#1a1a1a",
+        AppbarText = "#334155",
+        AppbarBackground = "rgba(255,255,255,0.95)",
+        DrawerBackground = "#f8fafc",
+        Background = "#ffffff",
+        BackgroundGray = "#f1f5f9",
+        Surface = "#ffffff",
+        TextPrimary = "#1a1a1a",
+        TextSecondary = "#64748b",
+        GrayLight = "#e2e8f0",
+        GrayLighter = "#f8fafc",
     };
 
     private readonly PaletteDark _darkPalette = new()
     {
-        Primary = "#7e6fff",
-        Surface = "#1e1e2d",
-        Background = "#1a1a27",
-        BackgroundGray = "#151521",
-        AppbarText = "#92929f",
-        AppbarBackground = "rgba(26,26,39,0.8)",
-        DrawerBackground = "#1a1a27",
-        ActionDefault = "#74718e",
-        ActionDisabled = "#9999994d",
-        ActionDisabledBackground = "#605f6d4d",
-        TextPrimary = "#b2b0bf",
-        TextSecondary = "#92929f",
-        TextDisabled = "#ffffff33",
-        DrawerIcon = "#92929f",
-        DrawerText = "#92929f",
-        GrayLight = "#2a2833",
-        GrayLighter = "#1e1e2d",
-        Info = "#4a86ff",
-        Success = "#3dcb6c",
-        Warning = "#ffb545",
-        Error = "#ff3f5f",
-        LinesDefault = "#33323e",
-        TableLines = "#33323e",
-        Divider = "#292838",
-        OverlayLight = "#1e1e2d80",
+        Primary = "#ff6633",        // Burp Orange - Accent principal
+        Secondary = "#3b82f6",      // Blue - Toggle switches
+        Tertiary = "#8b5cf6",       // Purple
+        Success = "#22c55e",        // Green
+        Info = "#3b82f6",           // Blue
+        Warning = "#f59e0b",        // Amber
+        Error = "#ef4444",          // Red
+        Dark = "#0a0a0a",           // Presque noir
+        Surface = "#1e1e1e",        // Fond des cards/panels
+        Background = "#161616",     // Fond principal
+        BackgroundGray = "#1a1a1a", // Fond alternatif
+        AppbarText = "#e5e5e5",     // Texte header
+        AppbarBackground = "#1a1a1a", // Fond header
+        DrawerBackground = "#1a1a1a", // Fond sidebar
+        ActionDefault = "#b4b4b4",   // Actions par défaut
+        ActionDisabled = "#4a4a4a",  // Actions désactivées
+        ActionDisabledBackground = "#2a2a2a",
+        TextPrimary = "#e5e5e5",     // Texte principal
+        TextSecondary = "#9ca3af",   // Texte secondaire
+        TextDisabled = "#6b7280",    // Texte désactivé
+        DrawerIcon = "#9ca3af",
+        DrawerText = "#e5e5e5",
+        GrayLight = "#2a2a2a",       // Bordures claires
+        GrayLighter = "#1e1e1e",     // Bordures foncées
+        LinesDefault = "#2a2a2a",    // Lignes par défaut
+        TableLines = "#2a2a2a",      // Lignes de tableau
+        Divider = "#2a2a2a",         // Séparateurs
+        OverlayLight = "#0a0a0a99",  // Overlay
+        Black = "#0a0a0a",
     };
 
     public string DarkLightModeButtonIcon => _isDarkMode switch

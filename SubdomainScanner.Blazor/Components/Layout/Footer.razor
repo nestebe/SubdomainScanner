@@ -1,0 +1,91 @@
+<MudPaper Elevation="0" Class="footer-container pa-8 mt-8">
+    <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudStack Spacing="2">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                        <MudIcon Icon="@Icons.Material.Filled.Security" Color="Color.Primary" Size="Size.Large" />
+                        <MudText Typo="Typo.h6" Color="Color.Primary">Subdomain Scanner</MudText>
+                    </MudStack>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        Professional subdomain discovery tool for authorized security testing and reconnaissance.
+                    </MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        Version 2.0 - Powered by .NET 9 & MudBlazor
+                    </MudText>
+                </MudStack>
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.h6" Color="Color.Primary">Data Sources</MudText>
+                    <MudStack Spacing="1">
+                        <MudLink Typo="Typo.body2" Color="Color.Secondary" Class="footer-link">crt.sh - SSL/TLS Certificates</MudLink>
+                        <MudLink Typo="Typo.body2" Color="Color.Secondary" Class="footer-link">HackerTarget API</MudLink>
+                        <MudLink Typo="Typo.body2" Color="Color.Secondary" Class="footer-link">Wayback Machine</MudLink>
+                        <MudLink Typo="Typo.body2" Color="Color.Secondary" Class="footer-link">AlienVault OTX</MudLink>
+                        <MudLink Typo="Typo.body2" Color="Color.Secondary" Class="footer-link">ThreatCrowd</MudLink>
+                        <MudLink Typo="Typo.body2" Color="Color.Secondary" Class="footer-link">CommonCrawl</MudLink>
+                    </MudStack>
+                </MudStack>
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.h6" Color="Color.Primary">Important Notice</MudText>
+                    <MudAlert Severity="Severity.Warning" Dense="true" Elevation="0" Class="rounded-lg">
+                        This tool is for authorized security testing only. Always obtain explicit permission before scanning.
+                    </MudAlert>
+                    <MudStack Row="true" Spacing="2">
+                        <MudChip T="string" Size="Size.Small" Color="Color.Info" Icon="@Icons.Material.Filled.Security">Defensive Security</MudChip>
+                        <MudChip T="string" Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.VerifiedUser">Ethical Use</MudChip>
+                    </MudStack>
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+
+        <MudDivider Class="my-6" />
+
+        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="flex-wrap">
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                © @DateTime.Now.Year SubdomainScanner - Educational & Security Research Tool
+            </MudText>
+            <MudStack Row="true" Spacing="2">
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Author: Nicolas ESTEBE
+                </MudText>
+            </MudStack>
+        </MudStack>
+    </MudContainer>
+</MudPaper>
+
+<style>
+    .footer-container {
+        background: linear-gradient(to top, rgba(var(--mud-palette-surface-rgb), 1) 0%, rgba(var(--mud-palette-background-rgb), 0.95) 100%);
+        border-top: 1px solid rgba(var(--mud-palette-divider-rgb), 0.12);
+        margin-top: auto;
+    }
+
+    .footer-link {
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .footer-link:hover {
+        color: var(--mud-palette-primary) !important;
+        transform: translateX(4px);
+    }
+
+    .flex-wrap {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .rounded-lg {
+        border-radius: 8px !important;
+    }
+</style>
+
+@code {
+
+}

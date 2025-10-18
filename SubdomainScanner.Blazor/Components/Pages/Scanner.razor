@@ -1,0 +1,651 @@
+@page "/scanner"
+@using SubdomainScanner.Blazor.Services
+@using System.Text
+@using Microsoft.JSInterop
+@inject ScannerService ScannerService
+@inject ISnackbar Snackbar
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>Subdomain Scanner</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+
+    @if (_scanResult != null && _scanResult.IsSuccess && !_isScanning)
+    {
+        <MudGrid Class="mb-4">
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="3" Class="pa-4 rounded-lg">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                        <MudStack Spacing="1">
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Total Subdomains</MudText>
+                            <MudText Typo="Typo.h4" Color="Color.Primary">@_scanResult.TotalFound</MudText>
+                        </MudStack>
+                        <MudIcon Icon="@Icons.Material.Filled.List" Color="Color.Primary" Size="Size.Large" />
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="3" Class="pa-4 rounded-lg">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                        <MudStack Spacing="1">
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Resolved</MudText>
+                            <MudText Typo="Typo.h4" Color="Color.Success">@_scanResult.ResolvedDomains.Count</MudText>
+                        </MudStack>
+                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Large" />
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="3" Class="pa-4 rounded-lg">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                        <MudStack Spacing="1">
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Active Sources</MudText>
+                            <MudText Typo="Typo.h4" Color="Color.Info">@_activeSources</MudText>
+                        </MudStack>
+                        <MudIcon Icon="@Icons.Material.Filled.Source" Color="Color.Info" Size="Size.Large" />
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudPaper Elevation="3" Class="pa-4 rounded-lg">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                        <MudStack Spacing="1">
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Scan Time</MudText>
+                            <MudText Typo="Typo.h4" Color="Color.Warning">@_scanDuration</MudText>
+                        </MudStack>
+                        <MudIcon Icon="@Icons.Material.Filled.Timer" Color="Color.Warning" Size="Size.Large" />
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    }
+
+    <MudGrid>
+        <MudItem xs="12" lg="4">
+            <MudPaper Elevation="4" Class="pa-6 rounded-lg sticky" Style="top: 80px;">
+                <MudStack Spacing="4">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                        <MudIcon Icon="@Icons.Material.Filled.Tune" Color="Color.Primary" Size="Size.Large" />
+                        <MudText Typo="Typo.h5" Color="Color.Primary">Configuration</MudText>
+                    </MudStack>
+
+                    <MudTextField @bind-Value="_domain"
+                                  Label="Target Domain"
+                                  Variant="Variant.Outlined"
+                                  Placeholder="example.com"
+                                  Disabled="_isScanning"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Language"
+                                  AdornmentColor="Color.Primary"
+                                  Required="true"
+                                  HelperText="Enter the domain to scan"
+                                  Immediate="true"
+                                  OnKeyDown="@HandleKeyPress" />
+
+                    <MudDivider />
+
+                    <MudStack Spacing="2">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                            <MudText Typo="Typo.subtitle1" Color="Color.Primary">
+                                <MudIcon Icon="@Icons.Material.Filled.Storage" Size="Size.Small" Class="mr-1" />
+                                Data Sources
+                            </MudText>
+                            <MudTooltip Text="Select at least one source">
+                                <MudIconButton Icon="@Icons.Material.Filled.Info" Size="Size.Small" Color="Color.Info" />
+                            </MudTooltip>
+                        </MudStack>
+
+                        <MudCard Outlined="true" Class="pa-2">
+                            <MudStack Spacing="0">
+                                <MudCheckBox @bind-Value="_enableCrtSh"
+                                             Color="Color.Primary"
+                                             Disabled="_isScanning"
+                                             Dense="true">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                        <MudText>crt.sh</MudText>
+                                        <MudTooltip Text="Certificate Transparency Logs - Best for SSL certificates discovery">
+                                            <MudIcon Icon="@Icons.Material.Filled.Help" Size="Size.Small" Color="Color.Info" />
+                                        </MudTooltip>
+                                    </MudStack>
+                                </MudCheckBox>
+                                <MudCheckBox @bind-Value="_enableHackerTarget"
+                                             Color="Color.Primary"
+                                             Disabled="_isScanning"
+                                             Dense="true">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                        <MudText>HackerTarget</MudText>
+                                        <MudTooltip Text="Public search API - DNS and Web records">
+                                            <MudIcon Icon="@Icons.Material.Filled.Help" Size="Size.Small" Color="Color.Info" />
+                                        </MudTooltip>
+                                    </MudStack>
+                                </MudCheckBox>
+                                <MudCheckBox @bind-Value="_enableWayback"
+                                             Color="Color.Primary"
+                                             Disabled="_isScanning"
+                                             Dense="true">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                        <MudText>Wayback Machine</MudText>
+                                        <MudTooltip Text="Internet Archive - Historical web pages">
+                                            <MudIcon Icon="@Icons.Material.Filled.Help" Size="Size.Small" Color="Color.Info" />
+                                        </MudTooltip>
+                                    </MudStack>
+                                </MudCheckBox>
+                                <MudCheckBox @bind-Value="_enableAlienVault"
+                                             Color="Color.Primary"
+                                             Disabled="_isScanning"
+                                             Dense="true">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                        <MudText>AlienVault OTX</MudText>
+                                        <MudTooltip Text="Open Threat Exchange - Threat intelligence">
+                                            <MudIcon Icon="@Icons.Material.Filled.Help" Size="Size.Small" Color="Color.Info" />
+                                        </MudTooltip>
+                                    </MudStack>
+                                </MudCheckBox>
+                                <MudCheckBox @bind-Value="_enableThreatCrowd"
+                                             Color="Color.Primary"
+                                             Disabled="_isScanning"
+                                             Dense="true">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                        <MudText>ThreatCrowd</MudText>
+                                        <MudTooltip Text="Domain search - Security data">
+                                            <MudIcon Icon="@Icons.Material.Filled.Help" Size="Size.Small" Color="Color.Info" />
+                                        </MudTooltip>
+                                    </MudStack>
+                                </MudCheckBox>
+                                <MudCheckBox @bind-Value="_enableCommonCrawl"
+                                             Color="Color.Primary"
+                                             Disabled="_isScanning"
+                                             Dense="true">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                        <MudText>CommonCrawl</MudText>
+                                        <MudTooltip Text="Web crawl index - Comprehensive web data">
+                                            <MudIcon Icon="@Icons.Material.Filled.Help" Size="Size.Small" Color="Color.Info" />
+                                        </MudTooltip>
+                                    </MudStack>
+                                </MudCheckBox>
+                            </MudStack>
+                        </MudCard>
+                    </MudStack>
+
+                    <MudDivider />
+
+                    <MudCard Outlined="true" Class="pa-3">
+                        <MudSwitch @bind-Value="_resolveDns"
+                                   Color="Color.Success"
+                                   Disabled="_isScanning"
+                                   Label="DNS Resolution"
+                                   ThumbIcon="@(_resolveDns ? Icons.Material.Filled.Dns : Icons.Material.Outlined.Dns)">
+                        </MudSwitch>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-2">
+                            Verify active subdomains and retrieve IP addresses
+                        </MudText>
+                    </MudCard>
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               FullWidth="true"
+                               Size="Size.Large"
+                               Disabled="_isScanning || string.IsNullOrWhiteSpace(_domain)"
+                               OnClick="StartScanAsync"
+                               StartIcon="@Icons.Material.Filled.PlayArrow"
+                               Class="rounded-lg">
+                        @(_isScanning ? "Scanning..." : "Start Scan")
+                    </MudButton>
+
+                    @if (_isScanning)
+                    {
+                        <MudCard Outlined="true" Class="pa-3">
+                            <MudStack Spacing="2">
+                                <MudText Typo="Typo.body2" Color="Color.Primary">Scan in progress...</MudText>
+                                <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="rounded" />
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                    Querying @_activeSources active source(s)
+                                </MudText>
+                            </MudStack>
+                        </MudCard>
+                    }
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" lg="8">
+            <MudPaper Elevation="4" Class="pa-6 rounded-lg" Style="min-height: 600px;">
+                <MudTabs Elevation="0" Rounded="true" Color="Color.Primary" ApplyEffectsToContainer="true" PanelClass="pa-4">
+
+                    <MudTabPanel Icon="@Icons.Material.Filled.List" Text="Results" BadgeData="@(_scanResult?.TotalFound ?? 0)" BadgeColor="Color.Primary">
+                        @if (_scanResult != null && _scanResult.IsSuccess)
+                        {
+                            <MudStack Spacing="3">
+                                <MudAlert Severity="Severity.Success" Dense="false" Elevation="2" Class="rounded-lg">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" />
+                                        <div>
+                                            <MudText Typo="Typo.subtitle1">Scan completed successfully!</MudText>
+                                            <MudText Typo="Typo.body2">
+                                                Found <strong>@_scanResult.TotalFound</strong> unique subdomains
+                                                @if (_scanResult.ResolvedDomains.Any())
+                                                {
+                                                    <text> | Resolved <strong>@_scanResult.ResolvedDomains.Count</strong> active hosts</text>
+                                                }
+                                            </MudText>
+                                        </div>
+                                    </MudStack>
+                                </MudAlert>
+
+                                <MudPaper Outlined="true" Class="pa-3 rounded-lg">
+                                    <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
+                                        <MudButton Variant="Variant.Filled"
+                                                   Color="Color.Primary"
+                                                   StartIcon="@Icons.Material.Filled.Download"
+                                                   OnClick="() => ExportResults(ExportFormat.Txt)"
+                                                   Class="rounded-lg">
+                                            Export TXT
+                                        </MudButton>
+                                        <MudButton Variant="Variant.Filled"
+                                                   Color="Color.Info"
+                                                   StartIcon="@Icons.Material.Filled.Download"
+                                                   OnClick="() => ExportResults(ExportFormat.Json)"
+                                                   Class="rounded-lg">
+                                            Export JSON
+                                        </MudButton>
+                                        @if (_scanResult.ResolvedDomains.Any())
+                                        {
+                                            <MudButton Variant="Variant.Filled"
+                                                       Color="Color.Success"
+                                                       StartIcon="@Icons.Material.Filled.Download"
+                                                       OnClick="() => ExportResults(ExportFormat.Csv)"
+                                                       Class="rounded-lg">
+                                                Export CSV
+                                            </MudButton>
+                                        }
+                                        <MudButton Variant="Variant.Outlined"
+                                                   Color="Color.Secondary"
+                                                   StartIcon="@Icons.Material.Filled.ContentCopy"
+                                                   OnClick="CopyToClipboardAsync"
+                                                   Class="rounded-lg">
+                                            Copy All
+                                        </MudButton>
+                                    </MudStack>
+                                </MudPaper>
+
+                                @if (_resolveDns && _scanResult.ResolvedDomains.Any())
+                                {
+                                    <MudTable Items="_scanResult.ResolvedDomains"
+                                              Dense="true"
+                                              Hover="true"
+                                              Striped="true"
+                                              FixedHeader="true"
+                                              Height="450px"
+                                              Elevation="0"
+                                              Filter="new Func<KeyValuePair<string,string>,bool>(FilterFunc)"
+                                              Class="rounded-lg">
+                                        <ToolBarContent>
+                                            <MudText Typo="Typo.h6">Resolved Subdomains</MudText>
+                                            <MudSpacer />
+                                            <MudTextField @bind-Value="_searchString"
+                                                          Placeholder="Search"
+                                                          Adornment="Adornment.Start"
+                                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                                          IconSize="Size.Small"
+                                                          Variant="Variant.Outlined"
+                                                          Margin="Margin.Dense"
+                                                          Class="mt-0" />
+                                        </ToolBarContent>
+                                        <HeaderContent>
+                                            <MudTh><MudText Typo="Typo.subtitle2">Subdomain</MudText></MudTh>
+                                            <MudTh><MudText Typo="Typo.subtitle2">IP Address</MudText></MudTh>
+                                        </HeaderContent>
+                                        <RowTemplate>
+                                            <MudTd DataLabel="Subdomain">
+                                                <MudText Typo="Typo.body2" Style="font-family: 'Consolas', monospace;">@context.Key</MudText>
+                                            </MudTd>
+                                            <MudTd DataLabel="IP Address">
+                                                <MudChip T="string" Size="Size.Small" Color="Color.Info" Icon="@Icons.Material.Filled.Cable">@context.Value</MudChip>
+                                            </MudTd>
+                                        </RowTemplate>
+                                        <PagerContent>
+                                            <MudTablePager PageSizeOptions="new int[]{10, 25, 50, 100}" />
+                                        </PagerContent>
+                                    </MudTable>
+                                }
+                                else
+                                {
+                                    <MudPaper Outlined="true" Class="pa-3 rounded-lg" Style="max-height: 450px; overflow-y: auto;">
+                                        <MudTextField @bind-Value="_searchString"
+                                                      Placeholder="Search subdomains..."
+                                                      Adornment="Adornment.Start"
+                                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                                      Variant="Variant.Outlined"
+                                                      Margin="Margin.Dense"
+                                                      Class="mb-3" />
+                                        <MudStack Spacing="0">
+                                            @foreach (var subdomain in _scanResult.Subdomains.Where(s => string.IsNullOrWhiteSpace(_searchString) || s.Contains(_searchString, StringComparison.OrdinalIgnoreCase)))
+                                            {
+                                                <MudText Typo="Typo.body2" Class="pa-2 hover-highlight" Style="font-family: 'Consolas', monospace;">
+                                                    <MudIcon Icon="@Icons.Material.Filled.ChevronRight" Size="Size.Small" Color="Color.Primary" />
+                                                    @subdomain
+                                                </MudText>
+                                            }
+                                        </MudStack>
+                                    </MudPaper>
+                                }
+                            </MudStack>
+                        }
+                        else if (_scanResult != null && !_scanResult.IsSuccess)
+                        {
+                            <MudAlert Severity="Severity.Error" Elevation="2" Class="rounded-lg">
+                                <MudStack Spacing="1">
+                                    <MudText Typo="Typo.subtitle1"><strong>Scan Failed</strong></MudText>
+                                    <MudText Typo="Typo.body2">@_scanResult.ErrorMessage</MudText>
+                                </MudStack>
+                            </MudAlert>
+                        }
+                        else
+                        {
+                            <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Style="min-height: 400px;">
+                                <MudIcon Icon="@Icons.Material.Outlined.SearchOff" Size="Size.Large" Color="Color.Secondary" Style="font-size: 5rem;" />
+                                <MudText Typo="Typo.h5" Color="Color.Secondary">No scan results yet</MudText>
+                                <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center" Class="mt-2">
+                                    Configure your scan settings and click "Start Scan" to begin
+                                </MudText>
+                            </MudStack>
+                        }
+                    </MudTabPanel>
+
+                    <MudTabPanel Icon="@Icons.Material.Filled.Terminal" Text="Logs" BadgeData="@_logs.Count" BadgeColor="Color.Info">
+                        <MudPaper Outlined="true" Class="pa-4 rounded-lg terminal-panel" Style="height: 500px; overflow-y: auto;">
+                            @if (_logs.Any())
+                            {
+                                <MudStack Spacing="1">
+                                    @foreach (var log in _logs)
+                                    {
+                                        var logColor = GetLogColor(log);
+                                        var logIcon = GetLogIcon(log);
+                                        <MudText Typo="Typo.body2" Style="@($"color: {logColor}; font-size: 0.875rem; line-height: 1.6;")">
+                                            <MudIcon Icon="@logIcon" Size="Size.Small" Style="@($"color: {logColor};")" />
+                                            <span style="color: #9ca3af;">[{DateTime.Now:HH:mm:ss}]</span> @log
+                                        </MudText>
+                                    }
+                                </MudStack>
+                            }
+                            else
+                            {
+                                <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Style="height: 100%;">
+                                    <MudIcon Icon="@Icons.Material.Outlined.Terminal" Size="Size.Large" Style="color: #475569; font-size: 4rem;" />
+                                    <MudText Typo="Typo.body1" Style="color: #64748b;">
+                                        Waiting for scan to start...
+                                    </MudText>
+                                </MudStack>
+                            }
+                        </MudPaper>
+                    </MudTabPanel>
+
+                </MudTabs>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+</MudContainer>
+
+<style>
+    .hover-highlight:hover {
+        background-color: rgba(var(--mud-palette-primary-rgb), 0.08);
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+    }
+
+    .sticky {
+        position: sticky;
+    }
+
+    .rounded-lg {
+        border-radius: 12px !important;
+    }
+
+    .terminal-panel {
+        background: #1a1a1a !important;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        border: 1px solid #2a2a2a !important;
+    }
+</style>
+
+@code {
+    private string _domain = "";
+    private bool _isScanning = false;
+    private ScanResult? _scanResult;
+    private List<string> _logs = new();
+    private DateTime _scanStartTime;
+    private string _scanDuration = "0s";
+    private int _activeSources = 0;
+    private string _searchString = "";
+
+    private bool _enableCrtSh = true;
+    private bool _enableHackerTarget = true;
+    private bool _enableWayback = true;
+    private bool _enableAlienVault = true;
+    private bool _enableThreatCrowd = true;
+    private bool _enableCommonCrawl = true;
+    private bool _resolveDns = false;
+
+    protected override void OnInitialized()
+    {
+        ScannerService.OnLog += HandleLog;
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !_isScanning && !string.IsNullOrWhiteSpace(_domain))
+        {
+            await StartScanAsync();
+        }
+    }
+
+    private async Task StartScanAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_domain))
+        {
+            Snackbar.Add("Please enter a domain to scan", Severity.Warning);
+            return;
+        }
+
+        _isScanning = true;
+        _logs.Clear();
+        _scanResult = null;
+        _searchString = "";
+        _scanStartTime = DateTime.Now;
+        StateHasChanged();
+
+        var config = new ScanConfiguration
+        {
+            Domain = _domain.Trim().ToLower(),
+            ResolveDns = _resolveDns,
+            EnabledSources = new List<string>()
+        };
+
+        if (_enableCrtSh) config.EnabledSources.Add("crt.sh");
+        if (_enableHackerTarget) config.EnabledSources.Add("hackertarget");
+        if (_enableWayback) config.EnabledSources.Add("wayback");
+        if (_enableAlienVault) config.EnabledSources.Add("alienvault");
+        if (_enableThreatCrowd) config.EnabledSources.Add("threatcrowd");
+        if (_enableCommonCrawl) config.EnabledSources.Add("commoncrawl");
+
+        _activeSources = config.EnabledSources.Count;
+
+        if (!config.EnabledSources.Any())
+        {
+            Snackbar.Add("Please select at least one data source", Severity.Warning);
+            _isScanning = false;
+            return;
+        }
+
+        try
+        {
+            _scanResult = await ScannerService.ScanAsync(config);
+            var duration = DateTime.Now - _scanStartTime;
+            _scanDuration = duration.TotalSeconds < 60
+                ? $"{duration.TotalSeconds:F1}s"
+                : $"{duration.TotalMinutes:F1}m";
+
+            if (_scanResult.IsSuccess)
+            {
+                Snackbar.Add($"Scan completed! Found {_scanResult.TotalFound} subdomains in {_scanDuration}", Severity.Success, config =>
+                {
+                    config.Icon = Icons.Material.Filled.CheckCircle;
+                });
+            }
+            else
+            {
+                Snackbar.Add("Scan failed. Check logs for details.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isScanning = false;
+            StateHasChanged();
+        }
+    }
+
+    private void HandleLog(string message)
+    {
+        _logs.Add(message);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private string GetLogColor(string log)
+    {
+        if (log.Contains("Error", StringComparison.OrdinalIgnoreCase) || log.Contains("failed", StringComparison.OrdinalIgnoreCase))
+            return "#ef4444";  // Red
+        if (log.Contains("Found", StringComparison.OrdinalIgnoreCase) || log.Contains("success", StringComparison.OrdinalIgnoreCase))
+            return "#22c55e";  // Green
+        if (log.Contains("Starting", StringComparison.OrdinalIgnoreCase) || log.Contains("Active", StringComparison.OrdinalIgnoreCase))
+            return "#ff6633";  // Orange Burp
+        if (log.Contains("Resolved", StringComparison.OrdinalIgnoreCase) || log.Contains("DNS", StringComparison.OrdinalIgnoreCase))
+            return "#3b82f6";  // Blue
+        return "#9ca3af";      // Gray
+    }
+
+    private string GetLogIcon(string log)
+    {
+        if (log.Contains("Error", StringComparison.OrdinalIgnoreCase) || log.Contains("failed", StringComparison.OrdinalIgnoreCase))
+            return Icons.Material.Filled.Error;
+        if (log.Contains("Found", StringComparison.OrdinalIgnoreCase) || log.Contains("success", StringComparison.OrdinalIgnoreCase))
+            return Icons.Material.Filled.CheckCircle;
+        if (log.Contains("Starting", StringComparison.OrdinalIgnoreCase))
+            return Icons.Material.Filled.PlayArrow;
+        if (log.Contains("DNS", StringComparison.OrdinalIgnoreCase))
+            return Icons.Material.Filled.Dns;
+        return Icons.Material.Filled.Info;
+    }
+
+    private bool FilterFunc(KeyValuePair<string, string> item)
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+        return item.Key.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ||
+               item.Value.Contains(_searchString, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private enum ExportFormat { Txt, Json, Csv }
+
+    private async Task ExportResults(ExportFormat format)
+    {
+        if (_scanResult == null || !_scanResult.Subdomains.Any())
+        {
+            Snackbar.Add("No results to export", Severity.Warning);
+            return;
+        }
+
+        string content;
+        string filename;
+        string mimeType;
+
+        switch (format)
+        {
+            case ExportFormat.Json:
+                content = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    timestamp = DateTime.Now,
+                    domain = _domain,
+                    total = _scanResult.TotalFound,
+                    resolved = _scanResult.ResolvedDomains.Count,
+                    subdomains = _scanResult.Subdomains,
+                    resolved_hosts = _scanResult.ResolvedDomains
+                }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                filename = $"{_domain}_subdomains_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+                mimeType = "application/json";
+                break;
+
+            case ExportFormat.Csv:
+                var csv = new StringBuilder();
+                csv.AppendLine("Subdomain,IP Address");
+                foreach (var item in _scanResult.ResolvedDomains)
+                {
+                    csv.AppendLine($"{item.Key},{item.Value}");
+                }
+                content = csv.ToString();
+                filename = $"{_domain}_subdomains_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+                mimeType = "text/csv";
+                break;
+
+            default: // Txt
+                content = string.Join(Environment.NewLine, _scanResult.Subdomains);
+                filename = $"{_domain}_subdomains_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+                mimeType = "text/plain";
+                break;
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("downloadFile", filename, content, mimeType);
+            Snackbar.Add($"Exported {_scanResult.Subdomains.Count} subdomains to {filename}", Severity.Success, config =>
+            {
+                config.Icon = Icons.Material.Filled.Download;
+            });
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Export failed: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task CopyToClipboardAsync()
+    {
+        if (_scanResult == null || !_scanResult.Subdomains.Any())
+        {
+            Snackbar.Add("No results to copy", Severity.Warning);
+            return;
+        }
+
+        var content = string.Join(Environment.NewLine, _scanResult.Subdomains);
+
+        try
+        {
+            var success = await JS.InvokeAsync<bool>("copyToClipboard", content);
+            if (success)
+            {
+                Snackbar.Add($"Copied {_scanResult.Subdomains.Count} subdomains to clipboard", Severity.Success, config =>
+                {
+                    config.Icon = Icons.Material.Filled.ContentCopy;
+                });
+            }
+            else
+            {
+                Snackbar.Add("Failed to copy to clipboard", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Copy failed: {ex.Message}", Severity.Error);
+        }
+    }
+
+    public void Dispose()
+    {
+        ScannerService.OnLog -= HandleLog;
+    }
+}
