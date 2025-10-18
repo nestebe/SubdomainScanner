@@ -12,26 +12,42 @@ Subdomain discovery tool in C# .NET, similar to Sublist3r, with modular architec
 - **Multi-format export** - TXT, JSON, CSV
 - **Flexible configuration** - Enable/disable individual sources
 - **Asynchronous** - Parallel search across all sources
+- **Modern Web UI** - Professional Blazor interface
 - **Intuitive CLI interface** - With complete help
 
 ## Project Architecture
 
 ```
 SubdomainScanner/
-├── Core/                      # Core components
-│   ├── ISubdomainSource.cs    # Interface for sources
-│   ├── BaseSubdomainSource.cs # Abstract base class
-│   └── SubdomainScanner.cs    # Main manager
-├── Sources/                   # Source implementations
-│   ├── CrtShSource.cs
-│   ├── HackerTargetSource.cs
-│   ├── WaybackMachineSource.cs
-│   ├── AlienVaultSource.cs
-│   ├── ThreatCrowdSource.cs
-│   └── CommonCrawlSource.cs
-├── Utils/                     # Utilities
-│   └── FileExporter.cs        # File export
-└── Program.cs                 # CLI entry point
+├── SubdomainScanner.Core/           # Core library
+│   ├── Core/                        # Core components
+│   │   ├── ISubdomainSource.cs      # Interface for sources
+│   │   ├── BaseSubdomainSource.cs   # Abstract base class
+│   │   └── SubdomainScanner.cs      # Main manager
+│   ├── Sources/                     # Source implementations
+│   │   ├── CrtShSource.cs
+│   │   ├── HackerTargetSource.cs
+│   │   ├── WaybackMachineSource.cs
+│   │   ├── AlienVaultSource.cs
+│   │   ├── ThreatCrowdSource.cs
+│   │   └── CommonCrawlSource.cs
+│   └── Utils/                       # Utilities
+│       └── FileExporter.cs          # File export
+├── SubdomainScanner.Console/        # CLI application
+│   └── Program.cs                   # CLI entry point
+└── SubdomainScanner.Blazor/         # Web UI
+    ├── Components/
+    │   ├── Layout/                  # Layout components
+    │   │   ├── MainLayout.razor     # Main layout with Nuxt UI theme
+    │   │   ├── NavMenu.razor        # Navigation menu
+    │   │   └── Footer.razor         # Footer
+    │   └── Pages/
+    │       ├── Scanner.razor        # Main scanner page
+    │       └── Home.razor           # Home page (redirects to scanner)
+    ├── Services/
+    │   └── ScannerService.cs        # Scanner business logic
+    └── wwwroot/js/
+        └── fileDownload.js          # File download utilities
 ```
 
 ## Data Sources
@@ -54,7 +70,41 @@ dotnet build -c Release
 
 ## Usage
 
-### Basic Examples
+### Web Interface
+
+Launch the modern Blazor web interface:
+
+```bash
+# Run the web application
+dotnet run --project "SubdomainScanner.Blazor/SubdomainScanner.Blazor.csproj"
+```
+
+Then open your browser to `https://localhost:5001` (or the URL shown in the console).
+
+#### Web UI Features
+
+- **Real-time scanning** - Live progress updates and logs
+- **Statistics dashboard** - Total subdomains, resolved hosts, scan time
+- **Interactive configuration** - Enable/disable sources with visual checkboxes
+- **DNS resolution toggle** - Optional IP address resolution
+- **Multiple export formats** - Download results as TXT, JSON, or CSV
+- **Search & filter** - Find specific subdomains in results
+- **Professional design** - Nuxt UI design system with green primary color and Slate gray palette
+- **Dark mode** - Modern dark interface optimized for security professionals
+- **Copy to clipboard** - Quick copy of all results
+
+#### Design System
+
+The interface uses the **Nuxt UI design system** implemented in MudBlazor:
+- **Primary color**: Green (#22c55e) - Professional security tool aesthetic
+- **Gray scale**: Tailwind Slate palette - Clean and modern
+- **Border radius**: 6px - Consistent with contemporary design
+- **Dark mode by default**: Optimized for extended use by security professionals
+- **MudBlazor components**: Material Design component library for Blazor
+
+### Command Line Interface
+
+#### Basic Examples
 
 ```bash
 # Scan a domain with all sources
@@ -79,7 +129,7 @@ dotnet run -- -d example.com --disable wayback --disable commoncrawl
 dotnet run -- -d example.com -v
 ```
 
-### Complete Options
+#### CLI Options
 
 ```
 Options:
@@ -95,22 +145,34 @@ Options:
 
 ## Compile to Executable
 
-### Windows
+### Console Application
+
+#### Windows
 ```bash
-dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true
+dotnet publish SubdomainScanner.Console/SubdomainScanner.Console.csproj -c Release -r win-x64 --self-contained -p:PublishSingleFile=true
 ```
 
-### Linux
+#### Linux
 ```bash
-dotnet publish -c Release -r linux-x64 --self-contained -p:PublishSingleFile=true
+dotnet publish SubdomainScanner.Console/SubdomainScanner.Console.csproj -c Release -r linux-x64 --self-contained -p:PublishSingleFile=true
 ```
 
-### macOS
+#### macOS
 ```bash
-dotnet publish -c Release -r osx-x64 --self-contained -p:PublishSingleFile=true
+dotnet publish SubdomainScanner.Console/SubdomainScanner.Console.csproj -c Release -r osx-x64 --self-contained -p:PublishSingleFile=true
 ```
 
-The executable will be in `bin/Release/net9.0/<runtime>/publish/`
+The executable will be in `SubdomainScanner.Console/bin/Release/net9.0/<runtime>/publish/`
+
+### Web Application
+
+To publish the Blazor web application:
+
+```bash
+dotnet publish SubdomainScanner.Blazor/SubdomainScanner.Blazor.csproj -c Release
+```
+
+The published files will be in `SubdomainScanner.Blazor/bin/Release/net9.0/publish/`
 
 ## Output Examples
 

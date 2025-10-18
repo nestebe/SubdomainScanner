@@ -400,13 +400,13 @@
     }
 
     .rounded-lg {
-        border-radius: 12px !important;
+        border-radius: 6px !important;
     }
 
     .terminal-panel {
-        background: #1a1a1a !important;
+        background: #0f172a !important;  /* Slate-900 (Nuxt UI) */
         font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-        border: 1px solid #2a2a2a !important;
+        border: 1px solid #1e293b !important;  /* Slate-800 (Nuxt UI) */
     }
 </style>
 
@@ -519,14 +519,14 @@
     private string GetLogColor(string log)
     {
         if (log.Contains("Error", StringComparison.OrdinalIgnoreCase) || log.Contains("failed", StringComparison.OrdinalIgnoreCase))
-            return "#ef4444";  // Red
+            return "#f87171";  // Red-400 (Nuxt UI)
         if (log.Contains("Found", StringComparison.OrdinalIgnoreCase) || log.Contains("success", StringComparison.OrdinalIgnoreCase))
-            return "#22c55e";  // Green
+            return "#34d399";  // Emerald-400 (Nuxt UI)
         if (log.Contains("Starting", StringComparison.OrdinalIgnoreCase) || log.Contains("Active", StringComparison.OrdinalIgnoreCase))
-            return "#ff6633";  // Orange Burp
+            return "#22c55e";  // Green-500 (Nuxt UI Primary)
         if (log.Contains("Resolved", StringComparison.OrdinalIgnoreCase) || log.Contains("DNS", StringComparison.OrdinalIgnoreCase))
-            return "#3b82f6";  // Blue
-        return "#9ca3af";      // Gray
+            return "#60a5fa";  // Blue-400 (Nuxt UI)
+        return "#94a3b8";      // Slate-400 (Nuxt UI)
     }
 
     private string GetLogIcon(string log)

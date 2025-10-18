@@ -45,7 +45,7 @@
             PaletteDark = _darkPalette,
             LayoutProperties = new LayoutProperties()
             {
-                DefaultBorderRadius = "4px"
+                DefaultBorderRadius = "6px" // Nuxt UI border radius
             }
         };
     }
@@ -62,57 +62,61 @@
 
     private readonly PaletteLight _lightPalette = new()
     {
-        Primary = "#ff6633",        // Burp Orange
-        Secondary = "#3b82f6",      // Blue
-        Tertiary = "#8b5cf6",       // Purple
-        Success = "#22c55e",        // Green
-        Info = "#3b82f6",           // Blue
-        Warning = "#f59e0b",        // Amber
-        Error = "#ef4444",          // Red
-        Black = "#1a1a1a",
-        AppbarText = "#334155",
-        AppbarBackground = "rgba(255,255,255,0.95)",
-        DrawerBackground = "#f8fafc",
+        // Nuxt UI Primary - Green
+        Primary = "#10b981",        // Green-500
+        Secondary = "#6366f1",      // Indigo-500
+        Tertiary = "#8b5cf6",       // Violet-500
+        Success = "#22c55e",        // Green-500
+        Info = "#3b82f6",           // Blue-500
+        Warning = "#f59e0b",        // Amber-500
+        Error = "#ef4444",          // Red-500
+        // Nuxt UI Grays - Slate/Cool
+        Black = "#0f172a",          // Slate-900
+        AppbarText = "#334155",     // Slate-700
+        AppbarBackground = "rgba(255,255,255,0.9)",
+        DrawerBackground = "#ffffff",
         Background = "#ffffff",
-        BackgroundGray = "#f1f5f9",
+        BackgroundGray = "#f8fafc",  // Slate-50
         Surface = "#ffffff",
-        TextPrimary = "#1a1a1a",
-        TextSecondary = "#64748b",
-        GrayLight = "#e2e8f0",
-        GrayLighter = "#f8fafc",
+        TextPrimary = "#0f172a",    // Slate-900
+        TextSecondary = "#64748b",  // Slate-500
+        GrayLight = "#e2e8f0",      // Slate-200
+        GrayLighter = "#f1f5f9",    // Slate-100
     };
 
     private readonly PaletteDark _darkPalette = new()
     {
-        Primary = "#ff6633",        // Burp Orange - Accent principal
-        Secondary = "#3b82f6",      // Blue - Toggle switches
-        Tertiary = "#8b5cf6",       // Purple
-        Success = "#22c55e",        // Green
-        Info = "#3b82f6",           // Blue
-        Warning = "#f59e0b",        // Amber
-        Error = "#ef4444",          // Red
-        Dark = "#0a0a0a",           // Presque noir
-        Surface = "#1e1e1e",        // Fond des cards/panels
-        Background = "#161616",     // Fond principal
-        BackgroundGray = "#1a1a1a", // Fond alternatif
-        AppbarText = "#e5e5e5",     // Texte header
-        AppbarBackground = "#1a1a1a", // Fond header
-        DrawerBackground = "#1a1a1a", // Fond sidebar
-        ActionDefault = "#b4b4b4",   // Actions par défaut
-        ActionDisabled = "#4a4a4a",  // Actions désactivées
-        ActionDisabledBackground = "#2a2a2a",
-        TextPrimary = "#e5e5e5",     // Texte principal
-        TextSecondary = "#9ca3af",   // Texte secondaire
-        TextDisabled = "#6b7280",    // Texte désactivé
-        DrawerIcon = "#9ca3af",
-        DrawerText = "#e5e5e5",
-        GrayLight = "#2a2a2a",       // Bordures claires
-        GrayLighter = "#1e1e1e",     // Bordures foncées
-        LinesDefault = "#2a2a2a",    // Lignes par défaut
-        TableLines = "#2a2a2a",      // Lignes de tableau
-        Divider = "#2a2a2a",         // Séparateurs
-        OverlayLight = "#0a0a0a99",  // Overlay
-        Black = "#0a0a0a",
+        // Nuxt UI Primary - Green (plus lumineux en dark)
+        Primary = "#22c55e",        // Green-500
+        Secondary = "#818cf8",      // Indigo-400
+        Tertiary = "#a78bfa",       // Violet-400
+        Success = "#34d399",        // Emerald-400
+        Info = "#60a5fa",           // Blue-400
+        Warning = "#fbbf24",        // Amber-400
+        Error = "#f87171",          // Red-400
+        // Nuxt UI Dark - Slate background
+        Dark = "#020617",           // Slate-950
+        Black = "#020617",          // Slate-950
+        Surface = "#0f172a",        // Slate-900
+        Background = "#020617",     // Slate-950
+        BackgroundGray = "#0c1222", // Entre 950 et 900
+        AppbarText = "#f1f5f9",     // Slate-100
+        AppbarBackground = "#0f172a", // Slate-900
+        DrawerBackground = "#0f172a", // Slate-900
+        ActionDefault = "#cbd5e1",   // Slate-300
+        ActionDisabled = "#475569",  // Slate-600
+        ActionDisabledBackground = "#1e293b", // Slate-800
+        TextPrimary = "#f1f5f9",     // Slate-100
+        TextSecondary = "#94a3b8",   // Slate-400
+        TextDisabled = "#64748b",    // Slate-500
+        DrawerIcon = "#94a3b8",      // Slate-400
+        DrawerText = "#f1f5f9",      // Slate-100
+        GrayLight = "#1e293b",       // Slate-800
+        GrayLighter = "#0f172a",     // Slate-900
+        LinesDefault = "#1e293b",    // Slate-800
+        TableLines = "#1e293b",      // Slate-800
+        Divider = "#1e293b",         // Slate-800
+        OverlayLight = "#02061780",  // Slate-950 avec transparence
     };
 
     public string DarkLightModeButtonIcon => _isDarkMode switch
