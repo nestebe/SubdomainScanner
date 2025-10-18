@@ -38,7 +38,7 @@ SubdomainScanner/
 └── SubdomainScanner.Blazor/         # Web UI
     ├── Components/
     │   ├── Layout/                  # Layout components
-    │   │   ├── MainLayout.razor     # Main layout with Nuxt UI theme
+    │   │   ├── MainLayout.razor     # Main layout
     │   │   ├── NavMenu.razor        # Navigation menu
     │   │   └── Footer.razor         # Footer
     │   └── Pages/
@@ -89,18 +89,9 @@ Then open your browser to `https://localhost:5001` (or the URL shown in the cons
 - **DNS resolution toggle** - Optional IP address resolution
 - **Multiple export formats** - Download results as TXT, JSON, or CSV
 - **Search & filter** - Find specific subdomains in results
-- **Professional design** - Nuxt UI design system with green primary color and Slate gray palette
 - **Dark mode** - Modern dark interface optimized for security professionals
 - **Copy to clipboard** - Quick copy of all results
 
-#### Design System
-
-The interface uses the **Nuxt UI design system** implemented in MudBlazor:
-- **Primary color**: Green (#22c55e) - Professional security tool aesthetic
-- **Gray scale**: Tailwind Slate palette - Clean and modern
-- **Border radius**: 6px - Consistent with contemporary design
-- **Dark mode by default**: Optimized for extended use by security professionals
-- **MudBlazor components**: Material Design component library for Blazor
 
 ### Command Line Interface
 
