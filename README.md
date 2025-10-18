@@ -4,6 +4,8 @@ Subdomain discovery tool in C# .NET, similar to Sublist3r, with modular architec
 
 **Author:** Nicolas ESTEBE / devestebe@gmail.com
 
+![SubdomainScanner Avalonia UI](screenshots/1.png)
+
 ## Features
 
 - **Modular architecture** - Easily extensible data sources
@@ -12,6 +14,7 @@ Subdomain discovery tool in C# .NET, similar to Sublist3r, with modular architec
 - **Multi-format export** - TXT, JSON, CSV
 - **Flexible configuration** - Enable/disable individual sources
 - **Asynchronous** - Parallel search across all sources
+- **Cross-platform Desktop UI** - Modern Avalonia interface with dark theme
 - **Modern Web UI** - Professional Blazor interface
 - **Intuitive CLI interface** - With complete help
 
@@ -35,19 +38,29 @@ SubdomainScanner/
 │       └── FileExporter.cs          # File export
 ├── SubdomainScanner.Console/        # CLI application
 │   └── Program.cs                   # CLI entry point
-└── SubdomainScanner.Blazor/         # Web UI
-    ├── Components/
-    │   ├── Layout/                  # Layout components
-    │   │   ├── MainLayout.razor     # Main layout
-    │   │   ├── NavMenu.razor        # Navigation menu
-    │   │   └── Footer.razor         # Footer
-    │   └── Pages/
-    │       ├── Scanner.razor        # Main scanner page
-    │       └── Home.razor           # Home page (redirects to scanner)
-    ├── Services/
-    │   └── ScannerService.cs        # Scanner business logic
-    └── wwwroot/js/
-        └── fileDownload.js          # File download utilities
+├── SubdomainScanner.Avalonia/       # Desktop UI (Cross-platform)
+│   ├── Views/
+│   │   ├── MainWindow.axaml         # Main window UI
+│   │   └── MainWindow.axaml.cs      # Main window logic
+│   ├── ViewModels/
+│   │   └── MainWindowViewModel.cs   # MVVM view model
+│   ├── Services/
+│   │   └── ScannerService.cs        # Scanner business logic
+│   └── Styles/
+│       └── ModernStyles.axaml       # Nuxt UI inspired theme
+├── SubdomainScanner.Blazor/         # Web UI
+│   ├── Components/
+│   │   ├── Layout/                  # Layout components
+│   │   │   ├── MainLayout.razor     # Main layout
+│   │   │   ├── NavMenu.razor        # Navigation menu
+│   │   │   └── Footer.razor         # Footer
+│   │   └── Pages/
+│   │       ├── Scanner.razor        # Main scanner page
+│   │       └── Home.razor           # Home page (redirects to scanner)
+│   ├── Services/
+│   │   └── ScannerService.cs        # Scanner business logic
+│   └── wwwroot/js/
+│       └── fileDownload.js          # File download utilities
 ```
 
 ## Data Sources
@@ -70,6 +83,28 @@ dotnet build -c Release
 
 ## Usage
 
+### Desktop Application (Avalonia)
+
+Launch the modern cross-platform desktop interface:
+
+```bash
+# Run the Avalonia desktop application
+dotnet run --project "SubdomainScanner.Avalonia/SubdomainScanner.Avalonia.csproj"
+```
+
+#### Desktop UI Features
+
+- **2-Column Layout** - Configuration on left, Results & Logs always visible on right (no scrolling needed!)
+- **Real-time scanning** - Live progress updates with auto-scrolling logs
+- **Compact statistics** - 2×2 grid showing total subdomains, resolved hosts, scan time, active sources
+- **Interactive configuration** - Enable/disable sources with aligned checkboxes
+- **DNS resolution toggle** - Optional IP address resolution
+- **Dark/Light theme** - Toggle with animated theme switcher
+- **Modern design** - Nuxt UI inspired color scheme (Green #22c55e primary, Slate grays)
+- **Smooth animations** - Hover effects, scale transforms, smooth transitions
+- **Copy to clipboard** - Native clipboard integration
+- **Cross-platform** - Runs on Windows, macOS, and Linux
+
 ### Web Interface
 
 Launch the modern Blazor web interface:
@@ -91,7 +126,6 @@ Then open your browser to `https://localhost:5001` (or the URL shown in the cons
 - **Search & filter** - Find specific subdomains in results
 - **Dark mode** - Modern dark interface optimized for security professionals
 - **Copy to clipboard** - Quick copy of all results
-
 
 ### Command Line Interface
 

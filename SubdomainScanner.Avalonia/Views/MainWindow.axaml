@@ -1,0 +1,553 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SubdomainScanner.Avalonia.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1400" d:DesignHeight="900"
+        x:Class="SubdomainScanner.Avalonia.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Subdomain Scanner"
+        Width="1400" Height="900"
+        MinWidth="1200" MinHeight="750"
+        TransparencyLevelHint="AcrylicBlur"
+        Background="{DynamicResource SystemChromeLowColor}"
+        ExtendClientAreaToDecorationsHint="False">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Window.Styles>
+        <!-- Primary Button (Success Green) -->
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="MinWidth" Value="140"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="Button.primary:pointerover">
+            <Setter Property="RenderTransform" Value="scale(1.03)"/>
+        </Style>
+
+        <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource SuccessHoverBrush}"/>
+        </Style>
+
+        <Style Selector="Button.primary:pressed">
+            <Setter Property="RenderTransform" Value="scale(0.97)"/>
+        </Style>
+
+        <Style Selector="Button.primary:pressed /template/ ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource SuccessPressedBrush}"/>
+        </Style>
+
+        <!-- Secondary Button -->
+        <Style Selector="Button.secondary">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="Button.secondary:pointerover">
+            <Setter Property="BorderBrush" Value="{StaticResource SuccessBrush}"/>
+        </Style>
+
+        <Style Selector="Button.secondary:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListLowBrush}"/>
+        </Style>
+
+        <!-- Theme Toggle Button -->
+        <Style Selector="Button.theme-toggle">
+            <Setter Property="Width" Value="48"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="CornerRadius" Value="24"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListLowBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3"/>
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="Button.theme-toggle:pointerover">
+            <Setter Property="RenderTransform" Value="rotate(180deg)"/>
+        </Style>
+
+        <!-- Stat Card -->
+        <Style Selector="Border.stat-card">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BoxShadow" Value="{StaticResource ElevationLow}"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.25"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="Border.stat-card:pointerover">
+            <Setter Property="BoxShadow" Value="{StaticResource ElevationMedium}"/>
+            <Setter Property="RenderTransform" Value="translate(0px, -2px)"/>
+        </Style>
+
+        <Style Selector="TextBlock.stat-label">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            <Setter Property="LetterSpacing" Value="0.5"/>
+        </Style>
+
+        <Style Selector="TextBlock.stat-value">
+            <Setter Property="FontSize" Value="32"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+        </Style>
+
+        <!-- Content Card -->
+        <Style Selector="Border.card">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="24"/>
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BoxShadow" Value="{StaticResource ElevationMedium}"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.25"/>
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <!-- Section Title -->
+        <Style Selector="TextBlock.section-title">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+        </Style>
+
+        <!-- Label Style -->
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <!-- List Container -->
+        <Style Selector="Border.list-container">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}"/>
+            <Setter Property="ClipToBounds" Value="True"/>
+        </Style>
+
+        <!-- Progress Bar Custom -->
+        <Style Selector="ProgressBar.modern">
+            <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+            <Setter Property="Height" Value="4"/>
+            <Setter Property="CornerRadius" Value="2"/>
+        </Style>
+
+        <!-- TextBox Custom Styles -->
+        <Style Selector="TextBox">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="TextBox:focus">
+            <Setter Property="BorderBrush" Value="{StaticResource SuccessBrush}"/>
+        </Style>
+
+        <!-- CheckBox Hover Effects -->
+        <Style Selector="CheckBox">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="CheckBox:pointerover">
+            <Setter Property="RenderTransform" Value="translate(2px, 0px)"/>
+        </Style>
+
+        <!-- Checkbox Group -->
+        <Style Selector="CheckBox.data-source">
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="MinWidth" Value="0"/>
+        </Style>
+    </Window.Styles>
+
+    <!-- Main Container -->
+    <Grid RowDefinitions="Auto,*" Margin="24" ColumnDefinitions="1.2*,1.8*">
+
+        <!-- Header Section (Full Width) -->
+        <Border Grid.Row="0" Grid.ColumnSpan="2" Padding="8,0,8,24">
+            <Grid ColumnDefinitions="*,Auto">
+                <!-- Title & Description -->
+                <StackPanel Grid.Column="0" Spacing="6">
+                    <TextBlock Text="Subdomain Scanner"
+                               FontSize="28"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+                    <TextBlock Text="Offensive security tool for subdomain enumeration"
+                               FontSize="14"
+                               Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                </StackPanel>
+
+                <!-- Theme Toggle -->
+                <Button Grid.Column="1"
+                        Classes="theme-toggle"
+                        Command="{Binding ToggleDarkModeCommand}"
+                        ToolTip.Tip="Toggle Dark/Light Mode">
+                    <Panel>
+                        <Path Data="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                              Stroke="{DynamicResource SystemControlForegroundBaseHighBrush}"
+                              StrokeThickness="2"
+                              StrokeLineCap="Round"
+                              StrokeJoin="Round"
+                              Width="24" Height="24"
+                              IsVisible="{Binding IsDarkMode}"/>
+                        <Path Data="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                              Stroke="{DynamicResource SystemControlForegroundBaseHighBrush}"
+                              StrokeThickness="2"
+                              StrokeLineCap="Round"
+                              StrokeJoin="Round"
+                              Width="24" Height="24"
+                              IsVisible="{Binding !IsDarkMode}"/>
+                    </Panel>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- LEFT COLUMN: Configuration + Statistics -->
+        <ScrollViewer Grid.Row="1" Grid.Column="0"
+                      VerticalScrollBarVisibility="Auto"
+                      Padding="0,0,12,0">
+            <StackPanel Spacing="20">
+
+                <!-- Configuration Panel -->
+                <Border Classes="card">
+                    <StackPanel Spacing="20">
+                        <TextBlock Classes="section-title" Text="Configuration"/>
+
+                        <!-- Domain Input -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Classes="label" Text="Target Domain"/>
+                            <Grid>
+                                <TextBox Text="{Binding Domain}"
+                                         Watermark="example.com"
+                                         IsEnabled="{Binding !IsScanning}"
+                                         CornerRadius="8"
+                                         Padding="14,12"
+                                         FontSize="14"
+                                         Height="46"/>
+                                <TextBlock Text="⚠️ Invalid domain format"
+                                           FontSize="12"
+                                           Foreground="{StaticResource DangerBrush}"
+                                           Margin="14,0"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Right"
+                                           IsVisible="{Binding IsDomainInvalid}"/>
+                            </Grid>
+                            <TextBlock Text="Enter a domain without http:// or https://"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                       Margin="4,0,0,0"/>
+                        </StackPanel>
+
+                        <!-- Data Sources -->
+                        <StackPanel Spacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" Classes="label" Text="Data Sources"/>
+                                <TextBlock Grid.Column="1"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                           Text="Select at least one source"
+                                           IsVisible="{Binding !HasAnySourceSelected}"/>
+                            </Grid>
+                            <!-- Compact 2-column layout for checkboxes -->
+                            <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,*"
+                                  RowSpacing="8" ColumnSpacing="12">
+                                <CheckBox Grid.Row="0" Grid.Column="0"
+                                          Classes="data-source"
+                                          Content="crt.sh"
+                                          IsChecked="{Binding EnableCrtSh}"
+                                          IsEnabled="{Binding !IsScanning}"
+                                          Margin="0"/>
+                                <CheckBox Grid.Row="0" Grid.Column="1"
+                                          Classes="data-source"
+                                          Content="HackerTarget"
+                                          IsChecked="{Binding EnableHackerTarget}"
+                                          IsEnabled="{Binding !IsScanning}"
+                                          Margin="0"/>
+                                <CheckBox Grid.Row="1" Grid.Column="0"
+                                          Classes="data-source"
+                                          Content="Wayback Machine"
+                                          IsChecked="{Binding EnableWayback}"
+                                          IsEnabled="{Binding !IsScanning}"
+                                          Margin="0"/>
+                                <CheckBox Grid.Row="1" Grid.Column="1"
+                                          Classes="data-source"
+                                          Content="AlienVault OTX"
+                                          IsChecked="{Binding EnableAlienVault}"
+                                          IsEnabled="{Binding !IsScanning}"
+                                          Margin="0"/>
+                                <CheckBox Grid.Row="2" Grid.Column="0"
+                                          Classes="data-source"
+                                          Content="ThreatCrowd"
+                                          IsChecked="{Binding EnableThreatCrowd}"
+                                          IsEnabled="{Binding !IsScanning}"
+                                          Margin="0"/>
+                                <CheckBox Grid.Row="2" Grid.Column="1"
+                                          Classes="data-source"
+                                          Content="CommonCrawl"
+                                          IsChecked="{Binding EnableCommonCrawl}"
+                                          IsEnabled="{Binding !IsScanning}"
+                                          Margin="0"/>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- DNS Resolution Option -->
+                        <CheckBox Content="Resolve DNS records"
+                                  IsChecked="{Binding ResolveDns}"
+                                  IsEnabled="{Binding !IsScanning}"
+                                  FontWeight="Medium"
+                                  FontSize="14"/>
+
+                        <!-- Separator -->
+                        <Separator Height="1" Background="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
+
+                        <!-- Action Buttons & Progress -->
+                        <Grid RowDefinitions="Auto,Auto" RowSpacing="14">
+                            <!-- Buttons -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10">
+                                <Button Classes="primary"
+                                        Content="Start Scan"
+                                        Command="{Binding StartScanCommand}"
+                                        IsEnabled="{Binding !IsScanning}"/>
+                                <Button Classes="secondary"
+                                        Content="Cancel"
+                                        Command="{Binding CancelScanCommand}"
+                                        IsEnabled="{Binding IsScanning}"/>
+                                <Button Classes="secondary"
+                                        Content="Clear"
+                                        Command="{Binding ClearResultsCommand}"
+                                        IsEnabled="{Binding !IsScanning}"
+                                        MinWidth="90"/>
+                            </StackPanel>
+
+                            <!-- Progress Bar -->
+                            <ProgressBar Grid.Row="1"
+                                         Classes="modern"
+                                         IsIndeterminate="True"
+                                         IsVisible="{Binding IsScanning}"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Statistics Dashboard (Compact 2x2) -->
+                <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*" RowSpacing="16" ColumnSpacing="16">
+                    <!-- Total Subdomains -->
+                    <Border Classes="stat-card" Grid.Row="0" Grid.Column="0">
+                        <StackPanel Spacing="6">
+                            <TextBlock Classes="stat-label" Text="TOTAL SUBDOMAINS"/>
+                            <TextBlock Classes="stat-value" Text="{Binding TotalSubdomains}" FontSize="28"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Resolved Hosts -->
+                    <Border Classes="stat-card" Grid.Row="0" Grid.Column="1">
+                        <StackPanel Spacing="6">
+                            <TextBlock Classes="stat-label" Text="RESOLVED HOSTS"/>
+                            <TextBlock Classes="stat-value" Text="{Binding ResolvedHosts}" FontSize="28"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Scan Time -->
+                    <Border Classes="stat-card" Grid.Row="1" Grid.Column="0">
+                        <StackPanel Spacing="6">
+                            <TextBlock Classes="stat-label" Text="SCAN TIME"/>
+                            <TextBlock Classes="stat-value" Text="{Binding ScanTime}" FontSize="28"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Active Sources -->
+                    <Border Classes="stat-card" Grid.Row="1" Grid.Column="1">
+                        <StackPanel Spacing="6">
+                            <TextBlock Classes="stat-label" Text="ACTIVE SOURCES"/>
+                            <TextBlock Classes="stat-value" Text="{Binding ActiveSources}" FontSize="28"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- RIGHT COLUMN: Results + Logs (Always Visible) -->
+        <Grid Grid.Row="1" Grid.Column="1"
+              RowDefinitions="*,*" RowSpacing="20"
+              Margin="12,0,0,0">
+
+            <!-- Discovered Subdomains (Top Half) -->
+            <Border Classes="card" Grid.Row="0">
+                <Grid RowDefinitions="Auto,*">
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,16">
+                        <TextBlock Grid.Column="0"
+                                   Classes="section-title"
+                                   Text="Discovered Subdomains"/>
+                        <Button Grid.Column="1"
+                                Classes="secondary"
+                                Content="Copy All"
+                                Command="{Binding CopySubdomainsCommand}"
+                                Padding="10,6"
+                                MinWidth="80"
+                                FontSize="13"
+                                Margin="0,0,8,0"
+                                IsEnabled="{Binding Subdomains.Count}"
+                                ToolTip.Tip="Copy all subdomains to clipboard"/>
+                        <TextBlock Grid.Column="2"
+                                   FontSize="13"
+                                   FontWeight="Medium"
+                                   Foreground="{StaticResource SuccessBrush}"
+                                   Text="{Binding Subdomains.Count, StringFormat='{}{0} found'}"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <Border Grid.Row="1" Classes="list-container">
+                        <Grid>
+                            <!-- Empty State -->
+                            <StackPanel HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Spacing="10"
+                                        IsVisible="{Binding !Subdomains.Count}">
+                                <TextBlock Text="🔍"
+                                           FontSize="42"
+                                           HorizontalAlignment="Center"
+                                           Opacity="0.3"/>
+                                <TextBlock Text="No subdomains discovered yet"
+                                           FontSize="14"
+                                           FontWeight="Medium"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Start a scan to discover subdomains"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                           HorizontalAlignment="Center"
+                                           Opacity="0.7"/>
+                            </StackPanel>
+
+                            <!-- Results List -->
+                            <ListBox ItemsSource="{Binding Subdomains}"
+                                     SelectionMode="Multiple"
+                                     Padding="4"
+                                     IsVisible="{Binding Subdomains.Count}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}"
+                                                   FontFamily="Consolas,Courier New,monospace"
+                                                   FontSize="12"
+                                                   Padding="8,5"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Scan Logs (Bottom Half) -->
+            <Border Classes="card" Grid.Row="1">
+                <Grid RowDefinitions="Auto,*">
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                        <TextBlock Grid.Column="0" Classes="section-title" Text="Scan Logs"/>
+                        <Button Grid.Column="1"
+                                Classes="secondary"
+                                Content="Clear"
+                                Command="{Binding ClearLogsCommand}"
+                                Padding="10,6"
+                                MinWidth="70"
+                                FontSize="13"
+                                IsEnabled="{Binding Logs.Count}"
+                                ToolTip.Tip="Clear log history"/>
+                    </Grid>
+
+                    <Border Grid.Row="1" Classes="list-container">
+                        <Grid>
+                            <!-- Empty State -->
+                            <StackPanel HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Spacing="10"
+                                        IsVisible="{Binding !Logs.Count}">
+                                <TextBlock Text="📋"
+                                           FontSize="42"
+                                           HorizontalAlignment="Center"
+                                           Opacity="0.3"/>
+                                <TextBlock Text="No logs yet"
+                                           FontSize="14"
+                                           FontWeight="Medium"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock Text="Activity will appear here"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                           HorizontalAlignment="Center"
+                                           Opacity="0.7"/>
+                            </StackPanel>
+
+                            <!-- Logs List -->
+                            <ScrollViewer x:Name="LogsScrollViewer"
+                                          VerticalScrollBarVisibility="Auto"
+                                          IsVisible="{Binding Logs.Count}">
+                                <ItemsControl ItemsSource="{Binding Logs}" Padding="8">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}"
+                                                       FontFamily="Consolas,Courier New,monospace"
+                                                       FontSize="11"
+                                                       Foreground="{StaticResource SuccessBrush}"
+                                                       TextWrapping="Wrap"
+                                                       Margin="0,3"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

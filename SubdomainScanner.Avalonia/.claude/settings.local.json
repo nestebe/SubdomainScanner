@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build SubdomainScanner.Avalonia.csproj -c Release)",
+      "Read(//c/Projets/Prototypes/SubdomainScanner/**)",
+      "Bash(dir screenshots)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "browsermcp",
+    "context7"
+  ]
+}

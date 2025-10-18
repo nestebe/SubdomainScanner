@@ -1,0 +1,99 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SubdomainScanner.Avalonia.App"
+             xmlns:local="using:SubdomainScanner.Avalonia"
+             RequestedThemeVariant="Default">
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+    
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="/Styles/ModernStyles.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+  
+    <Application.Styles>
+        <FluentTheme />
+        
+        <!-- Global Styles -->
+        <Style Selector="Window">
+            <Setter Property="TransparencyLevelHint" Value="AcrylicBlur"/>
+        </Style>
+        
+        <!-- TextBox Modern Style -->
+        <Style Selector="TextBox">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="MinHeight" Value="40"/>
+        </Style>
+        
+        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="BoxShadow" Value="0 0 0 3 #3B82F620"/>
+        </Style>
+        
+        <!-- CheckBox Modern Style -->
+        <Style Selector="CheckBox">
+            <Setter Property="Padding" Value="8,0,0,0"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        
+        <!-- Button Base Style -->
+        <Style Selector="Button">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        
+        <Style Selector="Button:pointerover">
+            <Setter Property="RenderTransform" Value="scale(1.02)"/>
+        </Style>
+        
+        <Style Selector="Button:pressed">
+            <Setter Property="RenderTransform" Value="scale(0.98)"/>
+        </Style>
+        
+        <Style Selector="Button:disabled">
+            <Setter Property="Opacity" Value="0.4"/>
+            <Setter Property="Cursor" Value="Arrow"/>
+        </Style>
+        
+        <!-- ListBox Modern Style -->
+        <Style Selector="ListBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        
+        <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+        
+        <!-- Progress Bar Modern Style -->
+        <Style Selector="ProgressBar">
+            <Setter Property="Height" Value="6"/>
+            <Setter Property="CornerRadius" Value="3"/>
+        </Style>
+        
+        <Style Selector="ProgressBar:indeterminate /template/ Border#PART_Indicator">
+            <Setter Property="CornerRadius" Value="3"/>
+        </Style>
+    </Application.Styles>
+</Application>
