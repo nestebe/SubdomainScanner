@@ -6,7 +6,7 @@ using SubdomainScanner.Core;
 using SubdomainScanner.Sources;
 using SubdomainScanner.Utils;
 
-namespace SubdomainScanner
+namespace SubdomainScanner.Console
 {
     /// <summary>
     /// SubdomainScanner - Subdomain Discovery Tool
@@ -78,7 +78,7 @@ namespace SubdomainScanner
 
             if (string.IsNullOrWhiteSpace(domain))
             {
-                Console.WriteLine("[!] Error: Domain is required.");
+                System.Console.WriteLine("[!] Error: Domain is required.");
                 PrintUsage();
                 return 1;
             }
@@ -106,7 +106,7 @@ namespace SubdomainScanner
                         if (disabledSources.Contains(source.Name.ToLower()))
                         {
                             source.IsEnabled = false;
-                            Console.WriteLine($"[!] Source disabled: {source.Name}");
+                            System.Console.WriteLine($"[!] Source disabled: {source.Name}");
                         }
                         scanner.AddSource(source);
                     }
@@ -114,23 +114,23 @@ namespace SubdomainScanner
                     // Launch scan
                     var subdomains = await scanner.ScanAsync();
 
-                    Console.WriteLine();
+                    System.Console.WriteLine();
 
                     if (subdomains.Count > 0)
                     {
                         if (!resolve)
                         {
-                            Console.WriteLine("[*] List of subdomains:");
+                            System.Console.WriteLine("[*] List of subdomains:");
                             foreach (var subdomain in subdomains)
                             {
-                                Console.WriteLine($"    {subdomain}");
+                                System.Console.WriteLine($"    {subdomain}");
                             }
                         }
                         else
                         {
                             var resolved = await scanner.ResolveAsync(subdomains);
-                            Console.WriteLine();
-                            Console.WriteLine($"[*] Resolved subdomains: {resolved.Count}/{subdomains.Count}");
+                            System.Console.WriteLine();
+                            System.Console.WriteLine($"[*] Resolved subdomains: {resolved.Count}/{subdomains.Count}");
 
                             // Export CSV if resolution
                             if (!string.IsNullOrWhiteSpace(outputFile) && format == "csv")
@@ -143,7 +143,7 @@ namespace SubdomainScanner
                         // Export results
                         if (!string.IsNullOrWhiteSpace(outputFile))
                         {
-                            Console.WriteLine();
+                            System.Console.WriteLine();
                             switch (format)
                             {
                                 case "json":
@@ -158,7 +158,7 @@ namespace SubdomainScanner
                     }
                     else
                     {
-                        Console.WriteLine("[!] No subdomains found.");
+                        System.Console.WriteLine("[!] No subdomains found.");
                     }
                 }
 
@@ -166,10 +166,10 @@ namespace SubdomainScanner
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[!] Error: {ex.Message}");
+                System.Console.WriteLine($"[!] Error: {ex.Message}");
                 if (verbose)
                 {
-                    Console.WriteLine(ex.StackTrace);
+                    System.Console.WriteLine(ex.StackTrace);
                 }
                 return 1;
             }
@@ -177,48 +177,48 @@ namespace SubdomainScanner
 
         static void PrintBanner()
         {
-            Console.WriteLine();
-            Console.WriteLine("╔═══════════════════════════════════════════════╗");
-            Console.WriteLine("║      SubdomainScanner v2.0 - C# Edition      ║");
-            Console.WriteLine("║       Subdomain Discovery Tool               ║");
-            Console.WriteLine("║   Author: Nicolas ESTEBE / devestebe@gmail.com");
-            Console.WriteLine("╚═══════════════════════════════════════════════╝");
-            Console.WriteLine();
+            System.Console.WriteLine();
+            System.Console.WriteLine("╔═══════════════════════════════════════════════╗");
+            System.Console.WriteLine("║      SubdomainScanner v2.0 - C# Edition      ║");
+            System.Console.WriteLine("║       Subdomain Discovery Tool               ║");
+            System.Console.WriteLine("║   Author: Nicolas ESTEBE / devestebe@gmail.com");
+            System.Console.WriteLine("╚═══════════════════════════════════════════════╝");
+            System.Console.WriteLine();
         }
 
         static void PrintUsage()
         {
-            Console.WriteLine("Usage:");
-            Console.WriteLine("  SubdomainScanner -d <domain> [options]");
-            Console.WriteLine();
-            Console.WriteLine("Options:");
-            Console.WriteLine("  -d, --domain <domain>    Target domain to scan (required)");
-            Console.WriteLine("  -o, --output <file>      Save results to a file");
-            Console.WriteLine("  -f, --format <format>    Export format: txt, json, csv (default: txt)");
-            Console.WriteLine("  -r, --resolve            Resolve IP addresses of subdomains");
-            Console.WriteLine("  -v, --verbose            Verbose mode with error details");
-            Console.WriteLine("  --disable <source>       Disable a specific source");
-            Console.WriteLine("  -l, --list-sources       List all available sources");
-            Console.WriteLine("  -h, --help               Display this help");
-            Console.WriteLine();
-            Console.WriteLine("Examples:");
-            Console.WriteLine("  SubdomainScanner -d example.com");
-            Console.WriteLine("  SubdomainScanner -d example.com -r -o results.csv -f csv");
-            Console.WriteLine("  SubdomainScanner -d example.com -o results.json -f json");
-            Console.WriteLine("  SubdomainScanner -d example.com --disable wayback");
-            Console.WriteLine();
+            System.Console.WriteLine("Usage:");
+            System.Console.WriteLine("  SubdomainScanner -d <domain> [options]");
+            System.Console.WriteLine();
+            System.Console.WriteLine("Options:");
+            System.Console.WriteLine("  -d, --domain <domain>    Target domain to scan (required)");
+            System.Console.WriteLine("  -o, --output <file>      Save results to a file");
+            System.Console.WriteLine("  -f, --format <format>    Export format: txt, json, csv (default: txt)");
+            System.Console.WriteLine("  -r, --resolve            Resolve IP addresses of subdomains");
+            System.Console.WriteLine("  -v, --verbose            Verbose mode with error details");
+            System.Console.WriteLine("  --disable <source>       Disable a specific source");
+            System.Console.WriteLine("  -l, --list-sources       List all available sources");
+            System.Console.WriteLine("  -h, --help               Display this help");
+            System.Console.WriteLine();
+            System.Console.WriteLine("Examples:");
+            System.Console.WriteLine("  SubdomainScanner -d example.com");
+            System.Console.WriteLine("  SubdomainScanner -d example.com -r -o results.csv -f csv");
+            System.Console.WriteLine("  SubdomainScanner -d example.com -o results.json -f json");
+            System.Console.WriteLine("  SubdomainScanner -d example.com --disable wayback");
+            System.Console.WriteLine();
         }
 
         static void ListSources()
         {
-            Console.WriteLine("Available sources:");
-            Console.WriteLine("  - crt.sh           : Certificate Transparency Logs");
-            Console.WriteLine("  - hackertarget     : HackerTarget API");
-            Console.WriteLine("  - wayback          : Wayback Machine (Internet Archive)");
-            Console.WriteLine("  - alienvault       : AlienVault OTX");
-            Console.WriteLine("  - threatcrowd      : ThreatCrowd API");
-            Console.WriteLine("  - commoncrawl      : CommonCrawl Index");
-            Console.WriteLine();
+            System.Console.WriteLine("Available sources:");
+            System.Console.WriteLine("  - crt.sh           : Certificate Transparency Logs");
+            System.Console.WriteLine("  - hackertarget     : HackerTarget API");
+            System.Console.WriteLine("  - wayback          : Wayback Machine (Internet Archive)");
+            System.Console.WriteLine("  - alienvault       : AlienVault OTX");
+            System.Console.WriteLine("  - threatcrowd      : ThreatCrowd API");
+            System.Console.WriteLine("  - commoncrawl      : CommonCrawl Index");
+            System.Console.WriteLine();
         }
     }
 }
