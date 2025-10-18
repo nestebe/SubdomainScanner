@@ -75,8 +75,13 @@ jobs:
             -p:IncludeNativeLibrariesForSelfExtract=true \
             -o ./publish/linux-x64
 
+      - name: List published files (debug)
+        run: ls -la ./publish/linux-x64
+
       - name: Make executable
-        run: chmod +x ./publish/linux-x64/${{ env.APP_NAME }}
+        run: |
+          chmod +x ./publish/linux-x64/SubdomainScanner.Avalonia || true
+          chmod +x ./publish/linux-x64/${{ env.APP_NAME }} || true
 
       - name: Create Linux Archive
         run: |
