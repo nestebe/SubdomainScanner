@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using SubdomainScanner.Avalonia.ViewModels;
@@ -17,6 +18,19 @@ public partial class MainWindow : Window
 
         // Subscribe to DataContext changes
         DataContextChanged += OnDataContextChanged;
+    }
+
+    private void DomainTextBox_KeyDown(object? sender, KeyEventArgs e)
+    {
+        // Trigger scan when Enter key is pressed
+        if (e.Key == Key.Enter && DataContext is MainWindowViewModel viewModel)
+        {
+            if (viewModel.StartScanCommand.CanExecute(null))
+            {
+                viewModel.StartScanCommand.Execute(null);
+            }
+            e.Handled = true;
+        }
     }
 
     private void OnDataContextChanged(object? sender, System.EventArgs e)

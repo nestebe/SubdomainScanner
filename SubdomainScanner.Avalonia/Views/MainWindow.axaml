@@ -268,13 +268,15 @@
                         <StackPanel Spacing="8">
                             <TextBlock Classes="label" Text="Target Domain"/>
                             <Grid>
-                                <TextBox Text="{Binding Domain}"
+                                <TextBox x:Name="DomainTextBox"
+                                         Text="{Binding Domain}"
                                          Watermark="example.com"
                                          IsEnabled="{Binding !IsScanning}"
                                          CornerRadius="8"
                                          Padding="14,12"
                                          FontSize="14"
-                                         Height="46"/>
+                                         Height="46"
+                                         KeyDown="DomainTextBox_KeyDown"/>
                                 <TextBlock Text="⚠️ Invalid domain format"
                                            FontSize="12"
                                            Foreground="{StaticResource DangerBrush}"
@@ -283,7 +285,7 @@
                                            HorizontalAlignment="Right"
                                            IsVisible="{Binding IsDomainInvalid}"/>
                             </Grid>
-                            <TextBlock Text="Enter a domain without http:// or https://"
+                            <TextBlock Text="Enter a domain without http:// or https:// (Press Enter to scan)"
                                        FontSize="11"
                                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                                        Margin="4,0,0,0"/>

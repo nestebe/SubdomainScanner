@@ -25,15 +25,18 @@ public class ScannerService
     {
         var result = new ScanResult();
         var logs = new List<string>();
+        HttpClient? httpClient = null;
+        Core.SubdomainScanner? scanner = null;
+        bool wasCancelled = false;
 
         try
         {
-            using var httpClient = _httpClientFactory.CreateClient();
+            httpClient = _httpClientFactory.CreateClient();
             httpClient.Timeout = TimeSpan.FromSeconds(30);
             httpClient.DefaultRequestHeaders.Add("User-Agent",
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) SubdomainScanner/2.0");
 
-            using var scanner = new Core.SubdomainScanner(config.Domain);
+            scanner = new Core.SubdomainScanner(config.Domain);
 
             // Create sources
             var sources = new List<ISubdomainSource>();
@@ -60,8 +63,15 @@ public class ScannerService
             Log($"Active sources: {sources.Count}");
             ReportProgress(0, sources.Count, "Initializing scan...");
 
+            // Check for cancellation before starting scan
+            cancellationToken.ThrowIfCancellationRequested();
+
             // Scan
             result.Subdomains = await scanner.ScanAsync();
+
+            // Check for cancellation after scan
+            cancellationToken.ThrowIfCancellationRequested();
+
             result.TotalFound = result.Subdomains.Count;
 
             Log($"Found {result.TotalFound} unique subdomains");
@@ -70,6 +80,9 @@ public class ScannerService
             // DNS Resolution if enabled
             if (config.ResolveDns && result.Subdomains.Any())
             {
+                // Check for cancellation before DNS resolution
+                cancellationToken.ThrowIfCancellationRequested();
+
                 Log("Starting DNS resolution...");
                 result.ResolvedDomains = await scanner.ResolveAsync(result.Subdomains);
                 Log($"Resolved {result.ResolvedDomains.Count} subdomains");
@@ -77,11 +90,83 @@ public class ScannerService
 
             result.IsSuccess = true;
         }
+        catch (OperationCanceledException)
+        {
+            wasCancelled = true;
+            result.IsSuccess = false;
+            result.ErrorMessage = "Scan cancelled by user";
+            Log("Scan cancelled");
+        }
+        catch (ObjectDisposedException)
+        {
+            wasCancelled = true;
+            result.IsSuccess = false;
+            result.ErrorMessage = "Scan cancelled";
+            Log("Scan cancelled");
+        }
+        catch (HttpRequestException ex)
+        {
+            result.IsSuccess = false;
+            result.ErrorMessage = $"Network error: {ex.Message}";
+            Log($"Network error: {ex.Message}");
+        }
         catch (Exception ex)
         {
             result.IsSuccess = false;
             result.ErrorMessage = ex.Message;
             Log($"Error: {ex.Message}");
+        }
+        finally
+        {
+            // Dispose scanner immediately - it doesn't make HTTP requests
+            try
+            {
+                scanner?.Dispose();
+            }
+            catch
+            {
+                // Ignore scanner disposal errors
+            }
+
+            // Handle HttpClient disposal based on cancellation status
+            if (httpClient != null)
+            {
+                if (wasCancelled)
+                {
+                    // If cancelled, background HTTP requests may still be running
+                    // Dispose HttpClient asynchronously after a delay to avoid ObjectDisposedException
+                    // This prevents memory leaks while allowing ongoing requests to complete gracefully
+                    var clientToDispose = httpClient;
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            // Wait 5 seconds for ongoing requests to complete or fail
+                            // This is a balance between cleanup speed and avoiding errors
+                            await Task.Delay(5000, CancellationToken.None);
+                            clientToDispose.Dispose();
+                        }
+                        catch
+                        {
+                            // Ignore disposal errors - requests may have already completed
+                        }
+                    });
+
+                    Log("Background cleanup scheduled (5s delay)");
+                }
+                else
+                {
+                    // Normal completion - dispose immediately
+                    try
+                    {
+                        httpClient.Dispose();
+                    }
+                    catch
+                    {
+                        // Ignore disposal errors
+                    }
+                }
+            }
         }
 
         return result;

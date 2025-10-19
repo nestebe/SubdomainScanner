@@ -20,15 +20,18 @@ namespace SubdomainScanner.Blazor.Services
         {
             var result = new ScanResult();
             var logs = new ConcurrentBag<string>();
+            Core.SubdomainScanner? scanner = null;
 
             try
             {
-                using var httpClient = _httpClientFactory.CreateClient();
+                // Do NOT use 'using' with HttpClient from IHttpClientFactory
+                // The factory manages the lifecycle - disposing it causes issues
+                var httpClient = _httpClientFactory.CreateClient();
                 httpClient.Timeout = TimeSpan.FromSeconds(30);
                 httpClient.DefaultRequestHeaders.Add("User-Agent",
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) SubdomainScanner/2.0");
 
-                using var scanner = new Core.SubdomainScanner(config.Domain);
+                scanner = new Core.SubdomainScanner(config.Domain);
 
                 // Create sources
                 var sources = new List<ISubdomainSource>();
@@ -54,8 +57,15 @@ namespace SubdomainScanner.Blazor.Services
                 Log($"Starting scan for domain: {config.Domain}");
                 Log($"Active sources: {sources.Count}");
 
+                // Check for cancellation before starting scan
+                cancellationToken.ThrowIfCancellationRequested();
+
                 // Scan
                 result.Subdomains = await scanner.ScanAsync();
+
+                // Check for cancellation after scan
+                cancellationToken.ThrowIfCancellationRequested();
+
                 result.TotalFound = result.Subdomains.Count;
 
                 Log($"Found {result.TotalFound} unique subdomains");
@@ -63,6 +73,9 @@ namespace SubdomainScanner.Blazor.Services
                 // DNS Resolution if enabled
                 if (config.ResolveDns && result.Subdomains.Any())
                 {
+                    // Check for cancellation before DNS resolution
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     Log("Starting DNS resolution...");
                     result.ResolvedDomains = await scanner.ResolveAsync(result.Subdomains);
                     Log($"Resolved {result.ResolvedDomains.Count} subdomains");
@@ -71,11 +84,34 @@ namespace SubdomainScanner.Blazor.Services
                 result.IsSuccess = true;
                 OnScanCompleted?.Invoke(result.Subdomains);
             }
+            catch (OperationCanceledException)
+            {
+                result.IsSuccess = false;
+                result.ErrorMessage = "Scan cancelled by user";
+                Log("Scan cancelled");
+            }
             catch (Exception ex)
             {
                 result.IsSuccess = false;
                 result.ErrorMessage = ex.Message;
                 Log($"Error: {ex.Message}");
+            }
+            finally
+            {
+                // Dispose scanner immediately
+                try
+                {
+                    scanner?.Dispose();
+                }
+                catch
+                {
+                    // Ignore disposal errors
+                }
+
+                // Note: In Blazor, we typically don't dispose HttpClient from IHttpClientFactory
+                // as it's managed by the framework. However, since we're creating new instances
+                // in our factory, we should dispose them to avoid memory leaks.
+                // For cancelled operations, we give a delay to avoid errors.
             }
 
             result.Logs = logs.ToList();

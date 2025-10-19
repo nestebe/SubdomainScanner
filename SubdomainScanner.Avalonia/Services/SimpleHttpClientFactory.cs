@@ -4,10 +4,10 @@ namespace SubdomainScanner.Avalonia.Services;
 
 public class SimpleHttpClientFactory : IHttpClientFactory
 {
-    private readonly HttpClient _httpClient = new();
-
     public HttpClient CreateClient(string name)
     {
-        return _httpClient;
+        // Create a new HttpClient instance for each request
+        // This allows each scan to configure its own headers and timeout
+        return new HttpClient();
     }
 }
