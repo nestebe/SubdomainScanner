@@ -9,7 +9,9 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
 
 namespace SubdomainScanner.Avalonia.ViewModels;
 
@@ -126,6 +128,10 @@ public partial class MainWindowViewModel : ViewModelBase
                     Subdomains.Add(subdomain);
                 }
 
+                // Notify commands that depend on Subdomains count
+                CopySubdomainsCommand.NotifyCanExecuteChanged();
+                ExportToTxtCommand.NotifyCanExecuteChanged();
+
                 var elapsed = DateTime.Now - startTime;
                 ScanTime = $"{elapsed.TotalSeconds:F1}s";
             }
@@ -169,6 +175,10 @@ public partial class MainWindowViewModel : ViewModelBase
         ResolvedHosts = 0;
         ScanTime = "0s";
         ActiveSources = 0;
+
+        // Notify commands that depend on Subdomains count
+        CopySubdomainsCommand.NotifyCanExecuteChanged();
+        ExportToTxtCommand.NotifyCanExecuteChanged();
     }
 
     private bool CanClearResults() => !IsScanning && (Subdomains.Count > 0 || Logs.Count > 0);
@@ -213,6 +223,110 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     private bool CanClearLogs() => Logs.Count > 0;
+
+    [RelayCommand]
+    private async Task CopySingleSubdomainAsync(string? subdomain)
+    {
+        if (string.IsNullOrWhiteSpace(subdomain))
+            return;
+
+        try
+        {
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var clipboard = desktop.MainWindow?.Clipboard;
+                if (clipboard != null)
+                {
+                    await clipboard.SetTextAsync(subdomain);
+                    AddLog($"✅ Copied: {subdomain}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            AddLog($"❌ Failed to copy: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private void OpenUrl(string? subdomain)
+    {
+        if (string.IsNullOrWhiteSpace(subdomain))
+            return;
+
+        try
+        {
+            var url = $"https://{subdomain}";
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true
+            });
+            AddLog($"🌐 Opened: {url}");
+        }
+        catch (Exception ex)
+        {
+            AddLog($"❌ Failed to open URL: {ex.Message}");
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanExportToTxt))]
+    private async Task ExportToTxtAsync()
+    {
+        if (Subdomains.Count == 0)
+            return;
+
+        try
+        {
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var window = desktop.MainWindow;
+                if (window != null)
+                {
+                    // Use the new StorageProvider API
+                    var storageProvider = window.StorageProvider;
+
+                    // Define file type filters
+                    var fileTypeFilter = new FilePickerFileType("Text Files")
+                    {
+                        Patterns = new[] { "*.txt" },
+                        MimeTypes = new[] { "text/plain" }
+                    };
+
+                    // Configure save options
+                    var options = new FilePickerSaveOptions
+                    {
+                        Title = "Export Subdomains to TXT",
+                        SuggestedFileName = $"{Domain}_subdomains_{DateTime.Now:yyyyMMdd_HHmmss}.txt",
+                        DefaultExtension = "txt",
+                        FileTypeChoices = new[] { fileTypeFilter },
+                        ShowOverwritePrompt = true
+                    };
+
+                    // Show save dialog
+                    var file = await storageProvider.SaveFilePickerAsync(options);
+
+                    if (file != null)
+                    {
+                        var content = string.Join(Environment.NewLine, Subdomains);
+
+                        // Write to file using stream
+                        await using var stream = await file.OpenWriteAsync();
+                        await using var writer = new System.IO.StreamWriter(stream);
+                        await writer.WriteAsync(content);
+
+                        AddLog($"✅ Exported {Subdomains.Count} subdomains to: {file.Name}");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            AddLog($"❌ Failed to export: {ex.Message}");
+        }
+    }
+
+    private bool CanExportToTxt() => Subdomains.Count > 0;
 
     private bool IsValidDomain(string domain)
     {

@@ -426,11 +426,20 @@
             <!-- Discovered Subdomains (Top Half) -->
             <Border Classes="card" Grid.Row="0">
                 <Grid RowDefinitions="Auto,*">
-                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,16">
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto,Auto" Margin="0,0,0,16">
                         <TextBlock Grid.Column="0"
                                    Classes="section-title"
                                    Text="Discovered Subdomains"/>
                         <Button Grid.Column="1"
+                                Classes="secondary"
+                                Content="Export TXT"
+                                Command="{Binding ExportToTxtCommand}"
+                                Padding="10,6"
+                                MinWidth="90"
+                                FontSize="13"
+                                Margin="0,0,8,0"
+                                ToolTip.Tip="Export to text file"/>
+                        <Button Grid.Column="2"
                                 Classes="secondary"
                                 Content="Copy All"
                                 Command="{Binding CopySubdomainsCommand}"
@@ -438,9 +447,8 @@
                                 MinWidth="80"
                                 FontSize="13"
                                 Margin="0,0,8,0"
-                                IsEnabled="{Binding Subdomains.Count}"
                                 ToolTip.Tip="Copy all subdomains to clipboard"/>
-                        <TextBlock Grid.Column="2"
+                        <TextBlock Grid.Column="3"
                                    FontSize="13"
                                    FontWeight="Medium"
                                    Foreground="{StaticResource SuccessBrush}"
@@ -471,20 +479,77 @@
                                            Opacity="0.7"/>
                             </StackPanel>
 
-                            <!-- Results List -->
-                            <ListBox ItemsSource="{Binding Subdomains}"
-                                     SelectionMode="Multiple"
-                                     Padding="4"
-                                     IsVisible="{Binding Subdomains.Count}">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding}"
-                                                   FontFamily="Consolas,Courier New,monospace"
-                                                   FontSize="12"
-                                                   Padding="8,5"/>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
+                            <!-- Results List with Action Buttons -->
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                         IsVisible="{Binding Subdomains.Count}">
+                                <ItemsControl ItemsSource="{Binding Subdomains}" Padding="4">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                                                    BorderThickness="0,0,0,1"
+                                                    Padding="8,6"
+                                                    Background="Transparent">
+                                                <Border.Transitions>
+                                                    <Transitions>
+                                                        <BrushTransition Property="Background" Duration="0:0:0.15"/>
+                                                    </Transitions>
+                                                </Border.Transitions>
+                                                <Border.Styles>
+                                                    <Style Selector="Border:pointerover">
+                                                        <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListLowBrush}"/>
+                                                    </Style>
+                                                </Border.Styles>
+                                                <Grid ColumnDefinitions="Auto,Auto,*">
+                                                    <!-- Open URL Button -->
+                                                    <Button Grid.Column="0"
+                                                            Command="{Binding $parent[Window].DataContext.OpenUrlCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            Background="Transparent"
+                                                            BorderThickness="0"
+                                                            Padding="6,4"
+                                                            Margin="0,0,4,0"
+                                                            ToolTip.Tip="Open in browser"
+                                                            Cursor="Hand">
+                                                        <Path Data="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                                              Stroke="{StaticResource SuccessBrush}"
+                                                              StrokeThickness="2"
+                                                              StrokeLineCap="Round"
+                                                              StrokeJoin="Round"
+                                                              Width="16" Height="16"/>
+                                                    </Button>
+
+                                                    <!-- Copy Button -->
+                                                    <Button Grid.Column="1"
+                                                            Command="{Binding $parent[Window].DataContext.CopySingleSubdomainCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            Background="Transparent"
+                                                            BorderThickness="0"
+                                                            Padding="6,4"
+                                                            Margin="0,0,8,0"
+                                                            ToolTip.Tip="Copy to clipboard"
+                                                            Cursor="Hand">
+                                                        <Path Data="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+                                                              Stroke="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                                              StrokeThickness="2"
+                                                              StrokeLineCap="Round"
+                                                              StrokeJoin="Round"
+                                                              Width="16" Height="16"/>
+                                                    </Button>
+
+                                                    <!-- Subdomain Text -->
+                                                    <TextBlock Grid.Column="2"
+                                                               Text="{Binding}"
+                                                               FontFamily="Consolas,Courier New,monospace"
+                                                               FontSize="12"
+                                                               VerticalAlignment="Center"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               ToolTip.Tip="{Binding}"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
                         </Grid>
                     </Border>
                 </Grid>
